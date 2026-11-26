@@ -1,0 +1,22 @@
+# dependências e build
+node_modules/
+dist/
+
+# banco local (é recriado automaticamente na primeira execução)
+server/*.db
+server/*.db-journal
+server/*.db-wal
+server/*.db-shm
+*.sqlite
+
+# variáveis de ambiente e logs
+.env
+.env.*
+*.log
+npm-debug.log*
+
+# sistema / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
