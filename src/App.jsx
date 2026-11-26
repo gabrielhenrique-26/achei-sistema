@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 
-const empty = { title:'', category:'Eletrônicos', kind:'Perdido', location:'', date:new Date().toISOString().slice(0,10), description:'', contact:'' }
+// data local (toISOString usa UTC e, no Brasil, após 21h devolveria o dia seguinte)
+const today = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,10) }
+const empty = { title:'', category:'Eletrônicos', kind:'Perdido', location:'', date:today(), description:'', contact:'' }
 const categories = ['Eletrônicos','Acessórios','Material escolar','Documentos','Chaves','Roupas','Outros']
 const moneyDate = d => d ? new Date(d+'T12:00:00').toLocaleDateString('pt-BR') : '—'
 
@@ -15,12 +17,18 @@ export default function App() {
   const [notice,setNotice] = useState('')
   const [selected,setSelected] = useState(null)
 
-  async function load() {
+  async function load(isStale = () => false) {
     const p = new URLSearchParams({q:query,kind,status})
     const r = await fetch('/api/items?'+p)
-    setItems(await r.json())
+    if (!r.ok) throw new Error('Falha ao listar')
+    const data = await r.json()
+    if (!isStale()) setItems(data) // ignora respostas antigas (busca digitada rápido)
   }
-  useEffect(()=>{ load().catch(()=>setNotice('Não foi possível conectar à API. Verifique se o servidor está ativo.')) },[query,kind,status])
+  useEffect(()=>{
+    let stale = false
+    load(()=>stale).catch(()=>{ if (!stale) setNotice('Não foi possível conectar à API. Verifique se o servidor está ativo.') })
+    return ()=>{ stale = true }
+  },[query,kind,status])
   const stats = useMemo(()=>({
     total:items.length,
     lost:items.filter(x=>x.kind==='Perdido' && x.status!=='Devolvido').length,
@@ -34,17 +42,23 @@ export default function App() {
       const r = await fetch('/api/items',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(form)})
       const data = await r.json()
       if (!r.ok) throw new Error(data.error || 'Erro ao cadastrar')
-      setForm(empty); setModal(false); setNotice('Registro cadastrado com sucesso!'); await load()
+      setForm({...empty,date:today()}); setModal(false); setNotice('Registro cadastrado com sucesso!'); await load()
     } catch(err) { setNotice(err.message) } finally { setBusy(false) }
   }
   async function changeStatus(item,next) {
-    const r = await fetch(`/api/items/${item.id}/status`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:next})})
-    if (r.ok) { setSelected(null); await load(); setNotice('Status atualizado.') }
+    try {
+      const r = await fetch(`/api/items/${item.id}/status`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:next})})
+      if (!r.ok) throw new Error()
+      setSelected(null); await load(); setNotice('Status atualizado.')
+    } catch { setNotice('Não foi possível atualizar o status.') }
   }
   async function remove(item) {
     if (!confirm(`Excluir "${item.title}"?`)) return
-    await fetch(`/api/items/${item.id}`,{method:'DELETE'})
-    setSelected(null); await load(); setNotice('Registro excluído.')
+    try {
+      const r = await fetch(`/api/items/${item.id}`,{method:'DELETE'})
+      if (!r.ok) throw new Error()
+      setSelected(null); await load(); setNotice('Registro excluído.')
+    } catch { setNotice('Não foi possível excluir o registro.') }
   }
 
   return <div className="app">
