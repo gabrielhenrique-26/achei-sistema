@@ -1,0 +1,22 @@
+flowchart TB
+  subgraph FE["Front-end (src/)"]
+    MAIN["main.jsx<br/>monta o React"]
+    APP["App.jsx<br/>estado, busca, filtros,<br/>formulários, detalhes"]
+    STAT["Stat<br/>(cartões de totais)"]
+    CSS["style.css<br/>layout responsivo"]
+    MAIN --> APP
+    APP --> STAT
+    APP --- CSS
+  end
+  subgraph BE["Back-end (server/index.js)"]
+    ROUTES["Rotas /api/items<br/>GET · POST · PATCH · DELETE"]
+    VAL["validateItem / parseId<br/>(regras de validação)"]
+    ERR["Tratador global de erros<br/>(respostas em JSON)"]
+    SQL["Acesso a dados<br/>(better-sqlite3)"]
+    ROUTES --> VAL
+    ROUTES --> SQL
+    ROUTES --> ERR
+  end
+  DB[("achei.db")]
+  APP -- "fetch /api/items" --> ROUTES
+  SQL --> DB

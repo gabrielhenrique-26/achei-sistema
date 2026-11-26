@@ -1,0 +1,23 @@
+sequenceDiagram
+  actor U as Usuário
+  participant UI as React (App.jsx)
+  participant API as Express (POST /api/items)
+  participant DB as SQLite (items)
+  U->>UI: preenche o formulário e clica em "Salvar registro"
+  UI->>API: POST /api/items (JSON)
+  API->>API: validateItem(body)
+  alt dados inválidos
+    API-->>UI: 400 {error}
+    UI-->>U: exibe a mensagem de erro
+  else dados válidos
+    API->>DB: INSERT INTO items (...)
+    DB-->>API: lastInsertRowid
+    API->>DB: SELECT * FROM items WHERE id = ?
+    DB-->>API: registro criado
+    API-->>UI: 201 + registro (status "Aberto")
+    UI->>API: GET /api/items?q&kind&status
+    API->>DB: SELECT ... ORDER BY created_at DESC
+    DB-->>API: lista
+    API-->>UI: 200 + lista
+    UI-->>U: "Registro cadastrado com sucesso!" e lista atualizada
+  end

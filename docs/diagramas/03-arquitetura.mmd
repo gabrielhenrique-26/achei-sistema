@@ -1,0 +1,13 @@
+flowchart LR
+  subgraph Cliente["Navegador"]
+    UI["Front-end React 18<br/>(interface, estado, fetch)"]
+  end
+  subgraph Servidor["Node.js"]
+    API["API REST Express 4<br/>(rotas + validação)"]
+    DRV["better-sqlite3<br/>(driver SQL)"]
+  end
+  DB[("SQLite<br/>server/achei.db")]
+  UI -- "HTTP + JSON<br/>/api/items" --> API
+  API --> DRV
+  DRV --> DB
+  VITE["Vite dev server :5173<br/>(proxy /api → :3333)"] -.-> UI

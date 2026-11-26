@@ -1,0 +1,24 @@
+sequenceDiagram
+  actor U as Usuário
+  participant UI as React (App.jsx)
+  participant API as Express (PATCH /api/items/:id/status)
+  participant DB as SQLite (items)
+  U->>UI: abre os detalhes e escolhe um novo status
+  UI->>API: PATCH /api/items/{id}/status {status}
+  API->>API: parseId e valida o status
+  alt id ou status inválido
+    API-->>UI: 400 {error}
+  else dados válidos
+    API->>DB: UPDATE items SET status = ? WHERE id = ?
+    DB-->>API: changes
+    alt changes = 0
+      API-->>UI: 404 "Registro não encontrado."
+    else changes = 1
+      API->>DB: SELECT * FROM items WHERE id = ?
+      DB-->>API: registro atualizado
+      API-->>UI: 200 + registro
+      UI->>API: GET /api/items (recarrega a lista)
+      API-->>UI: 200 + lista
+      UI-->>U: "Status atualizado."
+    end
+  end

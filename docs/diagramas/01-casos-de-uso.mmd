@@ -1,0 +1,23 @@
+flowchart LR
+  U(["👤 Usuário / colaborador"])
+  G(["👤 Responsável pela gestão"])
+  subgraph S["Sistema Achei!"]
+    UC01(["UC01 Cadastrar objeto"])
+    UC02(["UC02 Consultar objetos"])
+    UC03(["UC03 Pesquisar e filtrar"])
+    UC04(["UC04 Visualizar detalhes"])
+    UC05(["UC05 Atualizar status"])
+    UC06(["UC06 Excluir registro"])
+  end
+  U --- UC01
+  U --- UC02
+  U --- UC03
+  U --- UC04
+  G --- UC02
+  G --- UC03
+  G --- UC04
+  G --- UC05
+  G --- UC06
+  UC03 -. "«include»" .-> UC02
+  UC05 -. "«include»" .-> UC04
+  UC06 -. "«include»" .-> UC04

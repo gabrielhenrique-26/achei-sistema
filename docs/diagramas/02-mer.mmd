@@ -1,0 +1,13 @@
+erDiagram
+    ITEM {
+      INTEGER id PK "autoincremento"
+      TEXT title "NOT NULL"
+      TEXT category "NOT NULL"
+      TEXT kind "Perdido ou Encontrado (CHECK)"
+      TEXT location "NOT NULL"
+      TEXT date "NOT NULL, AAAA-MM-DD"
+      TEXT description "opcional"
+      TEXT contact "NOT NULL"
+      TEXT status "padrao Aberto"
+      TEXT created_at "padrao CURRENT_TIMESTAMP"
+    }
