@@ -48,3 +48,11 @@ Facilitar o registro, a consulta e o acompanhamento de objetos perdidos e encont
 
 ## 9. Limitações da PoC
 Não há autenticação, autorização por perfil, upload de imagens, notificações ou integração com serviços externos. O sistema é uma demonstração local e não deve receber dados pessoais reais sem controles adicionais.
+
+## 10. Regras de negócio adicionadas na revisão (validações da API)
+- RN06: a categoria deve ser uma das categorias oferecidas (Eletrônicos, Acessórios, Material escolar, Documentos, Chaves, Roupas, Outros).
+- RN07: a data deve estar no formato AAAA-MM-DD e existir no calendário; título, local e contato aceitam até 100 caracteres e a descrição até 500.
+- RN08: a busca trata `%` e `_` como texto comum.
+
+## 11. Status de implementação
+RF01–RF08 e RNF01–RNF06 estão **implementados no código**. A verificação de execução está em `docs/plano-de-testes.md`. Autenticação, perfis, imagens, notificações e histórico são **evolução futura** (não implementados).
